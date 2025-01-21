@@ -1,0 +1,69 @@
+manager_task:
+  description: |
+    Analyse the user query for all details.
+    DO NOT PLAN TRIP IN PAST DATES.
+    VERY IMPORTANT - If user wants to travel in past, Provide answer that the we can not travel in past.
+    Categorize the user query in one of the following categories:-
+    1. General Inquiry - Generate response yourself.
+    2. Flight Inquiry - invoke {flight_search_agent} agent
+    3. Hotel Inquiry - invoke {hotel_agent} agent
+    4. Flight and Hotel Inquiry - Invoke both {flight_search_agent} and {hotel_agent} agents, 
+    Collect answers from both and create final answer to be passed to {quality_assurance_agent}.
+    For all the above cases, get the answer evaulated by {quality_assurance_agent}, and provide final quality answer to user
+    Provide an expert recommendation where it helps the user.
+    Orignal user query : {user_query}.
+  expected_output: >
+    The extracted details from the user query which can be used by the agent for further processing.
+
+
+general_inquiry_task:
+  description: |
+    1. Understand if orignal user query requires general inquiry, if yes then get details from travel manager. 
+    2. Search internet for the best possible answers for general travel queries. 
+    Orignal user query : {user_query}.
+  expected_output: |
+    Well formated response to the user query.
+    This response might be the final response if the user query is a general inquiry.
+    Otherwise this response will be passed to other agents for generating the final response.
+
+
+search_flights_task:
+  description: |
+    1. Understand if orignal user query requires flight search, if yes then get details from travel manager.
+    2. Search for real-time available flights using the extracted details.
+    3. Make sure the reponse is actual real-time data and not mocked or outdated.
+    Orignal user query : {user_query}.
+  expected_output: >
+    A list of {Flight} with detailed info in each of the field.
+
+
+search_hotels_task:
+  description: |
+    1. Understand if orignal user query requires hotel search, if yes then get details from travel manager.
+    2. Find hotels available for booking in the specified location and dates from the user query.
+    3. Make sure the reponse is actual real-time data and not mocked or outdated.
+    Orignal user query : {user_query}.
+  expected_output: >
+    A list of {Hotel} with detailed info in each of the field.
+
+
+quality_assurance_review:
+  description: |
+    Make the final answer visually appealing. Easy to read & understand. Highlighting wherever needed.
+    Strictly check all dates are correct in final answer againt orignal user query.
+    Review the final response against user's query.
+    Ensure that the answer is accurate, and adheres to the high-quality standards.
+    Make sure the response is well-supported and leaves no questions unanswered.
+    Here are some highly important points to be kept in mind while reviewing:-
+    1. Prices should be native to the user's location, unless travel is international.
+    2. Do not include any result related to hotels if the orignal user query, is not relevant to hotel search.
+    3. Do not include any result related to flights if the orignal user query, is not relevant to flight search.
+    4. Do not recommned using another platforms when you can provide the information directly.
+    5. Make sure the reponse is actual real-time data and not mocked or outdated.
+    6. If rephrasing or minor changes are required, do it yourself and do not delegate it to any other agent.
+    7. Plan a trip means result will include both hotels and flights results unless specifically mention in user query what the results should include.
+    8. When flight details are to be sent as part of final answer do not trim Departure/Arrival values.
+    Orignal user query : {user_query}.
+  expected_output: |
+    A final response ready to be sent to the user.
+    This response should fully address the user's query
